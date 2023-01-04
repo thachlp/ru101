@@ -1,6 +1,7 @@
 import static org.awaitility.Awaitility.await;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.resps.Tuple;
 
 class JedisBasicsTest {
 
@@ -23,6 +25,8 @@ class JedisBasicsTest {
     jedis.del("customers:001");
     jedis.del("products:yoyo:001");
     jedis.del("collections:001");
+    jedis.del("leaderboards");
+
   }
 
   @Test
@@ -85,6 +89,31 @@ class JedisBasicsTest {
     Assertions.assertEquals("Hat", firstElement);
     String lastElement = jedis.rpop(key);
     Assertions.assertEquals("Jean", lastElement);
+  }
+
+  @Test
+  void redisSet() {
+    String key = "collections:001";
+    String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean", "Jean"};
+    jedis.sadd(key, productNames);
+    long count = jedis.scard(key);
+    Assertions.assertEquals(4, count);
+    boolean hat = jedis.sismember(key, "Hat");
+    Assertions.assertTrue(hat);
+  }
+
+  @Test
+  void redisSortedSet() {
+    String key = "leaderboards";
+    jedis.zadd(key, 3, "Alan");
+    jedis.zadd(key, 9, "Den");
+    jedis.zadd(key, 4, "Del");
+    jedis.zadd(key, 1, "Phuong");
+    jedis.zadd(key, 8, "Thanh");
+    jedis.zadd(key, 5, "Brand");
+    List<Tuple> tuples = jedis.zrevrangeByScoreWithScores(key, 10, 5);
+    Assertions.assertEquals(3, tuples.size());
+    Assertions.assertEquals(9, tuples.get(0).getScore());
   }
 
   @AfterAll
