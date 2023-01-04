@@ -1,5 +1,7 @@
 import static org.awaitility.Awaitility.await;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -39,6 +41,32 @@ class JedisBasicsTest {
     Assertions.assertTrue(jedis.exists(key));
     await().atLeast(5, TimeUnit.SECONDS);
     Assertions.assertTrue(jedis.exists(key));
+  }
+
+  @Test
+  void redisHash() {
+    String key = "product:yoyo:001";
+    Map<String, String> productProperties = new HashMap<>();
+    productProperties.put("name", "Yoyo");
+    productProperties.put("price", "148.000");
+    productProperties.put("YY1000", "20");
+    productProperties.put("YY1001", "20");
+    productProperties.put("YY1002", "20");
+    for (var property : productProperties.entrySet()) {
+      jedis.hset(key, property.getKey(), property.getValue());
+    }
+
+    Map<String, String> storedProperties = jedis.hgetAll(key);
+    Assertions.assertEquals(productProperties, storedProperties);
+    jedis.del(key);
+
+    jedis.hset(key, productProperties);
+    storedProperties = jedis.hgetAll(key);
+    Assertions.assertEquals(productProperties, storedProperties);
+
+    jedis.hincrBy(key, "YY1000", -1L);
+    String availableStock = jedis.hget(key, "YY1000");
+    Assertions.assertEquals("19", availableStock);
   }
 
   @AfterAll
