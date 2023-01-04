@@ -19,20 +19,25 @@ class JedisBasicsTest {
     if (HostPort.getRedisPassword().length() > 0) {
       jedis.auth(HostPort.getRedisPassword());
     }
+    jedis.del("hello");
+    jedis.del("customers:001");
+    jedis.del("products:yoyo:001");
+    jedis.del("collections:001");
   }
 
   @Test
   void hello() {
-    String result = jedis.set("hello", "world");
+    String key = "hello";
+    String result = jedis.set(key, "world");
     Assertions.assertEquals("OK", result);
-    String value = jedis.get("hello");
+    String value = jedis.get(key);
     Assertions.assertEquals("world", value);
 
   }
 
   @Test
   void redisString() {
-    String key = "customer:001";
+    String key = "customers:001";
     jedis.set(key, "1");
     jedis.incr(key);
     Assertions.assertEquals("2", jedis.get(key));
@@ -45,7 +50,7 @@ class JedisBasicsTest {
 
   @Test
   void redisHash() {
-    String key = "product:yoyo:001";
+    String key = "products:yoyo:001";
     Map<String, String> productProperties = new HashMap<>();
     productProperties.put("name", "Yoyo");
     productProperties.put("price", "148.000");
@@ -67,6 +72,19 @@ class JedisBasicsTest {
     jedis.hincrBy(key, "YY1000", -1L);
     String availableStock = jedis.hget(key, "YY1000");
     Assertions.assertEquals("19", availableStock);
+  }
+
+  @Test
+  void redisList() {
+    String key = "collections:001";
+    String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean"};
+    jedis.rpush(key, productNames);
+    long total = jedis.llen(key);
+    Assertions.assertEquals(4, total);
+    String firstElement = jedis.lpop(key);
+    Assertions.assertEquals("Hat", firstElement);
+    String lastElement = jedis.rpop(key);
+    Assertions.assertEquals("Jean", lastElement);
   }
 
   @AfterAll
