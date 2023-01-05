@@ -41,5 +41,12 @@ public class FacetedSearchTest {
     matches.put("medal_event", "false");
     skus = facetedSearch.matchByInspection(matches);
     Assertions.assertEquals("737-DEF-911", skus.get(0));
+
+    matches = new HashMap<>();
+    matches.put("disabled_access", "false");
+    matches.put("medal_event", "false");
+    matches.put("venue", "Nippon Budokan");
+    skus = facetedSearch.matchByInspection(matches);
+    Assertions.assertEquals("320-GHI-921", skus.get(0));
   }
 }
