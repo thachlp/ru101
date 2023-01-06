@@ -31,9 +31,6 @@ public class FacetedSearch {
   /**
    * Find all matching keys, retrieve value and then examine for all matching
    *   attributes.
-   * @param searchFactors
-   * @return
-   * @throws JsonProcessingException
    */
   public List<String> matchByInspection(Map<String, String> searchFactors)
       throws JsonProcessingException {
@@ -58,5 +55,33 @@ public class FacetedSearch {
       }
     }
     return result;
+  }
+
+  /**
+   * For each attribute & value combination, add the event into a Set
+   */
+  public void createEventWithLookups(Event[] events) throws JsonProcessingException {
+    String[] lookups = {"disabled_access", "medal_event", "venue"};
+    for (Event event : events) {
+      String eventKey = KeyHelper.createKey("event", event.getSku());
+      jedis.set(eventKey, objectMapper.writeValueAsString(event));
+      for (String lookup : lookups) {
+        String facetedSearchKey = KeyHelper.createKey("fs", lookup, event.lookup(lookup));
+        jedis.sadd(facetedSearchKey, event.getSku());
+      }
+    }
+  }
+
+  /**
+   * Use SINTER to find the matching elements
+   */
+  public List<String> matchByFaceTing(Map<String, String> searchFactors) {
+    List<String> facets = new ArrayList<>();
+    for (var factor : searchFactors.entrySet()) {
+      String facetedSearchKey = KeyHelper.createKey("fs", factor.getKey(), factor.getValue());
+      facets.add(facetedSearchKey);
+    }
+
+    return new ArrayList<>(jedis.sinter(facets.toArray(new String[0])));
   }
 }

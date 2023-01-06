@@ -40,4 +40,30 @@ public class Event {
   public String getCategory() {
     return category;
   }
+
+  public String lookup(String lookup) {
+    switch (lookup) {
+      case "sku" -> {
+        return sku;
+      }
+      case "name" -> {
+        return name;
+      }
+      case "disabled_access" -> {
+        return String.valueOf(disabledAccess);
+      }
+      case "medal_event" -> {
+        return String.valueOf(medalEvent);
+      }
+      case "venue" -> {
+        return venue;
+      }
+      case "category" -> {
+        return category;
+      }
+      default -> {
+        return "";
+      }
+    }
+  }
 }
