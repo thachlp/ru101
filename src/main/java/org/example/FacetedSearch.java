@@ -28,6 +28,13 @@ public class FacetedSearch {
     }
   }
 
+  /**
+   * Find all matching keys, retrieve value and then examine for all matching
+   *   attributes.
+   * @param searchFactors
+   * @return
+   * @throws JsonProcessingException
+   */
   public List<String> matchByInspection(Map<String, String> searchFactors)
       throws JsonProcessingException {
     String matchKeys = KeyHelper.createKey("event", "*");
