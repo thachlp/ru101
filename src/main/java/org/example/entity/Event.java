@@ -21,26 +21,6 @@ public class Event {
     return sku;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public boolean isDisabledAccess() {
-    return disabledAccess;
-  }
-
-  public boolean isMedalEvent() {
-    return medalEvent;
-  }
-
-  public String getVenue() {
-    return venue;
-  }
-
-  public String getCategory() {
-    return category;
-  }
-
   public String lookup(String lookup) {
     switch (lookup) {
       case "sku" -> {
