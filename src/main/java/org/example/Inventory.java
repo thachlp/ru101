@@ -72,6 +72,7 @@ public class Inventory {
         purchase.setCreatedAt(System.currentTimeMillis());
         String orderKey = KeyHelper.createKey("sales_order", orderId);
         pipeline.hmset(orderKey, purchase.toMap());
+        pipeline.sync();
       }
     } catch (Exception e) {
       e.printStackTrace();
