@@ -1,0 +1,35 @@
+[
+  {
+    "sku": "123-ABC-723",
+    "name": "Men's 100m Final",
+    "disabled_access": true,
+    "medal_event": true,
+    "venue": "Olympic Stadium",
+    "category": "Track & Field",
+    "capacity": 60102,
+    "available:General": 20000,
+    "price:General": 25.00
+  },
+  {
+    "sku": "737-DEF-911",
+    "name": "Women's 4x100m Heats",
+    "disabled_access": true,
+    "medal_event": false,
+    "venue": "Olympic Stadium",
+    "category": "Track & Field",
+    "capacity": 60102,
+    "available:General": 10000,
+    "price:General": 19.50
+  },
+  {
+    "sku": "320-GHI-921",
+    "name": "Womens Judo Qualifying",
+    "disabled_access": false,
+    "medal_event": false,
+    "venue": "Nippon Budokan",
+    "category": "Martial Arts",
+    "capacity": 60102,
+    "available:General": 10000,
+    "price:General": 19.50
+  }
+]

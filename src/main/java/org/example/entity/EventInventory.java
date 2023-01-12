@@ -8,10 +8,10 @@ public class EventInventory extends Event {
   @JsonProperty("capacity")
   private int capacity;
 
-  @JsonProperty("available")
+  @JsonProperty("available:General")
   private int available;
 
-  @JsonProperty("price")
+  @JsonProperty("price:General")
   private double price;
 
   public void setCapacity(int capacity) {

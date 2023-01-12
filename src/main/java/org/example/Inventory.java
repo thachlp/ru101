@@ -1,6 +1,5 @@
 package org.example;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.UUID;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
@@ -31,8 +30,7 @@ public class Inventory {
    * Create events from the array of passed event details. Provides overrides for number of
    * available tickets, price and ticket tier.
    */
-  public void createEvent(EventInventory[] events, int available, int price, String tier)
-      throws JsonProcessingException {
+  public void createEvent(EventInventory[] events, int available, double price, String tier) {
     String skuKeys = KeyHelper.createKey("events");
     for (EventInventory eventInventory : events) {
       if (available > 0) {
@@ -55,10 +53,11 @@ public class Inventory {
     Pipeline pipeline = jedis.pipelined();
     try {
       String eventKey = KeyHelper.createKey("event", sku);
+      jedis.watch(eventKey);
       int available = Integer.parseInt(
-          pipeline.hget(eventKey, String.format("available:%s", tier)).get());
+          jedis.hget(eventKey, String.format("available:%s", tier)));
       double price = Double.parseDouble(
-          pipeline.hget(eventKey, String.format("price:%s", tier)).get());
+          jedis.hget(eventKey, String.format("price:%s", tier)));
       if (available > quantity) {
         pipeline.hincrBy(eventKey, String.format("available:%s", tier), -quantity);
         String orderId = UUID.randomUUID().toString();

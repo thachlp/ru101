@@ -1,0 +1,30 @@
+[
+  {
+    "id": "bill",
+    "customer_name": "bill smith"
+  },
+  {
+    "id": "mary",
+    "customer_name": "mary jane"
+  },
+  {
+    "id": "jamie",
+    "customer_name": "jamie north"
+  },
+  {
+    "id": "joan",
+    "customer_name": "joan west"
+  },
+  {
+    "id": "fred",
+    "customer_name": "fred smith"
+  },
+  {
+    "id": "amy",
+    "customer_name": "amy south"
+  },
+  {
+    "id": "jim",
+    "customer_name": "jim somebody"
+  }
+]
