@@ -1,6 +1,5 @@
 package org.example;
 
-import java.util.UUID;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
 import org.example.entity.Purchase;
@@ -74,6 +73,45 @@ public class Inventory {
       }
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Need to call the auth service to check, but here we always return true
+   */
+  private boolean creditCardAuth(Customer customer, Double orderTotal) {
+    if (!customer.getCustomerName().isEmpty() && orderTotal < 100_000_000.0) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Reserve stock & Credit Card auth
+   * First reserve the inventory and perform a credit authorization. If successful
+   * then confirm the inventory deduction or back the deduction out.
+   */
+  public void reserve(Customer customer, String sku, int quantity, String tier, String orderId) {
+    Pipeline pipeline = new Pipeline(jedis);
+    try {
+      String eventKey = KeyHelper.createKey("event", sku);
+      jedis.watch(eventKey);
+      int available = Integer.parseInt(
+          jedis.hget(eventKey, String.format("available:%s", tier)));
+      double price = Double.parseDouble(
+          jedis.hget(eventKey, String.format("price:%s", tier)));
+      if (available > quantity && creditCardAuth(customer, price * quantity)) {
+        long currentTime = System.currentTimeMillis();
+        pipeline.hincrBy(eventKey, "available:" + tier, -quantity);
+        pipeline.hincrBy(eventKey, "held:" + tier, quantity);
+        String holdKey = KeyHelper.createKey("ticket_hold", sku);
+        pipeline.hsetnx(holdKey, "qty:" + orderId, String.valueOf(quantity));
+        pipeline.hsetnx(holdKey, "tier:" + orderId, tier);
+        pipeline.hsetnx(holdKey, "ts:" + orderId, String.valueOf(currentTime));
+        pipeline.sync();
+      }
+    } catch (Exception ex) {
+      ex.printStackTrace();
     }
   }
 }
