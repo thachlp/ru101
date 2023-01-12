@@ -1,7 +1,10 @@
+import static org.awaitility.Awaitility.await;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.example.Inventory;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
@@ -51,6 +54,10 @@ public class InventoryTest {
     String holdKey = KeyHelper.createKey("ticket_hold", sku);
     int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
     Assertions.assertEquals(5, quantity);
+
+    await().atLeast(100, TimeUnit.MILLISECONDS);
+    inventory.expireReservation(sku, 30);
+    Assertions.assertNull(jedis.hget(holdKey, "qty:" + orderId));
   }
 
   @BeforeEach

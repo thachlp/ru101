@@ -7,6 +7,7 @@ import org.example.entity.Purchase;
 import org.example.util.KeyHelper;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
 public class Inventory {
@@ -147,10 +148,12 @@ public class Inventory {
   public void expireReservation(String sku, long cutoffTime) {
     long cutoffTimeStamp = System.currentTimeMillis() - cutoffTime;
     String holdKey = KeyHelper.createKey("ticket_hold", sku);
-    ScanResult<Entry<String, String>> hScan = jedis.hscan(holdKey, "ts:*");
+    ScanParams params = new ScanParams();
+    params.match("ts:*");
+    ScanResult<Entry<String, String>> hScan = jedis.hscan(holdKey, "0", params);
     for (Entry<String, String> entry : hScan.getResult()) {
-      if (Long.parseLong(entry.getKey()) < cutoffTimeStamp) {
-        String orderId = entry.getValue().split(":")[0];
+      if (Long.parseLong(entry.getValue()) < cutoffTimeStamp) {
+        String orderId = entry.getKey().split(":")[1];
         backoutHold(sku, orderId);
       }
     }
