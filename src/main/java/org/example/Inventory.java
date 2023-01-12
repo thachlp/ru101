@@ -1,11 +1,13 @@
 package org.example;
 
+import java.util.Map.Entry;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
 import org.example.entity.Purchase;
 import org.example.util.KeyHelper;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.resps.ScanResult;
 
 public class Inventory {
 
@@ -118,7 +120,7 @@ public class Inventory {
   /**
    * Remove the ticket reservation
    */
-  public void backoutHold(String sku, String orderId) {
+  private void backoutHold(String sku, String orderId) {
     Pipeline pipeline = jedis.pipelined();
     try {
       String holdKey = KeyHelper.createKey("ticket_hold", sku);
@@ -135,6 +137,22 @@ public class Inventory {
       pipeline.sync();
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  /**
+   * Check if any reservation has exceeded the cutoff time. If any have, then
+   * backout the reservation and return the inventory back to the pool.
+   */
+  public void expireReservation(String sku, long cutoffTime) {
+    long cutoffTimeStamp = System.currentTimeMillis() - cutoffTime;
+    String holdKey = KeyHelper.createKey("ticket_hold", sku);
+    ScanResult<Entry<String, String>> hScan = jedis.hscan(holdKey, "ts:*");
+    for (Entry<String, String> entry : hScan.getResult()) {
+      if (Long.parseLong(entry.getKey()) < cutoffTimeStamp) {
+        String orderId = entry.getValue().split(":")[0];
+        backoutHold(sku, orderId);
+      }
     }
   }
 }
