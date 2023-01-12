@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
@@ -35,6 +36,25 @@ public class InventoryTest {
 
   @Test
   void checkAvailabilityAndPurchase() {
+    String orderId =  UUID.randomUUID().toString();
+    inventory.checkAvailabilityAndPurchase(customers[0], "123-ABC-723", 5, "General", orderId);
+    String orderKey = KeyHelper.createKey("sales_order", orderId);
+    String cost = jedis.hget(orderKey, "cost");
+    Assertions.assertEquals("125.0", cost);
+  }
+
+  @Test
+  void reserve() {
+    String orderId =  UUID.randomUUID().toString();
+    String sku = "737-DEF-911";
+    inventory.reserve(customers[0], sku, 5, "General", orderId);
+    String holdKey = KeyHelper.createKey("ticket_hold", sku);
+    int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
+    Assertions.assertEquals(5, quantity);
+  }
+
+  @BeforeEach
+  void init() {
     inventory.createEvent(eventInventories, 20000, 25.00, "General");
     inventory.createCustomers(customers);
 
@@ -45,11 +65,6 @@ public class InventoryTest {
 
     Assertions.assertEquals(3, numOfElements);
     Assertions.assertEquals("bill smith", customerName);
-    String orderId =  UUID.randomUUID().toString();
-    inventory.checkAvailabilityAndPurchase(customers[0], "123-ABC-723", 5, "General", orderId);
-    String orderKey = KeyHelper.createKey("sales_order", orderId);
-    String cost = jedis.hget(orderKey, "cost");
-    Assertions.assertEquals("125.0", cost);
   }
 
   @AfterEach
