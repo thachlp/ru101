@@ -114,4 +114,27 @@ public class Inventory {
       ex.printStackTrace();
     }
   }
+
+  /**
+   * Remove the ticket reservation
+   */
+  public void backoutHold(String sku, String orderId) {
+    Pipeline pipeline = jedis.pipelined();
+    try {
+      String holdKey = KeyHelper.createKey("ticket_hold", sku);
+      String eventKey = KeyHelper.createKey("event", sku);
+      jedis.watch(eventKey);
+
+      int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
+      String tier = jedis.hget(holdKey, "tier:" + orderId);
+      pipeline.hincrBy(eventKey, "available:" + tier, quantity);
+      pipeline.hincrBy(eventKey, "held:" + tier, -quantity);
+      pipeline.hdel(holdKey, "qty:" + orderId);
+      pipeline.hdel(holdKey,  "tier:" + orderId);
+      pipeline.hdel(holdKey, "ts:" + orderId);
+      pipeline.sync();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }
