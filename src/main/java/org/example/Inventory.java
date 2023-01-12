@@ -49,7 +49,7 @@ public class Inventory {
    * Check if there is sufficient inventory before making the purchase
    */
   public void checkAvailabilityAndPurchase(Customer customer, String sku, int quantity,
-      String tier) {
+      String tier, String orderId) {
     Pipeline pipeline = jedis.pipelined();
     try {
       String eventKey = KeyHelper.createKey("event", sku);
@@ -60,7 +60,6 @@ public class Inventory {
           jedis.hget(eventKey, String.format("price:%s", tier)));
       if (available > quantity) {
         pipeline.hincrBy(eventKey, String.format("available:%s", tier), -quantity);
-        String orderId = UUID.randomUUID().toString();
         Purchase purchase = new Purchase();
         purchase.setOrderId(orderId);
         purchase.setCustomer(customer);

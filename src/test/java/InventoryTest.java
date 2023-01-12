@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 import org.example.Inventory;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
@@ -44,6 +45,11 @@ public class InventoryTest {
 
     Assertions.assertEquals(3, numOfElements);
     Assertions.assertEquals("bill smith", customerName);
+    String orderId =  UUID.randomUUID().toString();
+    inventory.checkAvailabilityAndPurchase(customers[0], "123-ABC-723", 5, "General", orderId);
+    String orderKey = KeyHelper.createKey("sales_order", orderId);
+    String cost = jedis.hget(orderKey, "cost");
+    Assertions.assertEquals("125.0", cost);
   }
 
   @AfterEach
