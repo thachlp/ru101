@@ -1,5 +1,11 @@
 package org.example;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.example.util.KeyHelper;
 import org.example.util.TextIncrease;
 import redis.clients.jedis.Jedis;
@@ -9,8 +15,11 @@ public class SeatReservation {
 
   private final Jedis jedis;
 
-  public SeatReservation(Jedis jedis) {
+  private final ObjectMapper objectMapper;
+
+  public SeatReservation(Jedis jedis, ObjectMapper objectMapper) {
     this.jedis = jedis;
+    this.objectMapper = objectMapper;
   }
 
   /**
@@ -36,6 +45,24 @@ public class SeatReservation {
     String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
     String[] values = new String[]{"GET", "u32", "0"};
     return jedis.bitfield(key, values).get(0);
+  }
+
+  public List<String> getAvailable(int seatMap, int seatsRequired) throws JsonProcessingException {
+    List<String> seats = new ArrayList<>();
+    int endSeat = Integer.bitCount(seatMap) + 1;
+    if (seatsRequired <= endSeat) {
+      int requiredBlock = (int)Math.pow(2, seatsRequired) - 1;
+      for (int i = 1; i <= endSeat + 1; i++) {
+        if ((seatMap & requiredBlock) == requiredBlock) {
+          Map<String, String> properties = new HashMap<>();
+          properties.put("first_seat", String.valueOf(i));
+          properties.put("last_seat", String.valueOf(i + seatsRequired - 1));
+          seats.add(objectMapper.writeValueAsString(properties));
+          requiredBlock = requiredBlock << 1;
+        }
+      }
+    }
+    return  seats;
   }
 
 }
