@@ -47,6 +47,9 @@ public class SeatReservation {
     return jedis.bitfield(key, values).get(0);
   }
 
+  /**
+   * Return the available contiguous seats that match the criteria
+   */
   public List<String> getAvailable(int seatMap, int seatsRequired) throws JsonProcessingException {
     List<String> seats = new ArrayList<>();
     int endSeat = Integer.bitCount(seatMap) + 1;
