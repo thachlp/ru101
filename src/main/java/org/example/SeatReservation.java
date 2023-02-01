@@ -28,4 +28,14 @@ public class SeatReservation {
       blockName = TextIncrease.increaseString(blockName);
     }
   }
+
+  /**
+   * For the given Event, Tier and Block, return the seat map
+   */
+  public Long getEventSeatBlock(String sku, String tier, String blockName) {
+    String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
+    String[] values = new String[]{"GET", "u32", "0"};
+    return jedis.bitfield(key, values).get(0);
+  }
+
 }
