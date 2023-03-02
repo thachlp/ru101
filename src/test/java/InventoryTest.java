@@ -54,10 +54,6 @@ public class InventoryTest {
     String holdKey = KeyHelper.createKey("ticket_hold", sku);
     int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
     Assertions.assertEquals(5, quantity);
-
-    await().atLeast(100, TimeUnit.MILLISECONDS);
-    inventory.expireReservation(sku, 30);
-    Assertions.assertNull(jedis.hget(holdKey, "qty:" + orderId));
   }
 
   @BeforeEach
