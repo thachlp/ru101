@@ -4,21 +4,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.resps.Tuple;
 
 class JedisBasicsTest {
 
   private static Jedis jedis;
-  @BeforeAll
-  public static void setUp() {
+  @BeforeEach
+  public void setUp() {
     jedis = new Jedis(HostPort.getRedisHost(), HostPort.getRedisPort());
 
-    if (HostPort.getRedisPassword().length() > 0) {
+    if (!HostPort.getRedisPassword().isEmpty()) {
       jedis.auth(HostPort.getRedisPassword());
     }
     jedis.del("hello");

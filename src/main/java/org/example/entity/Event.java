@@ -43,27 +43,20 @@ public class Event {
 
   public String lookup(String lookup) {
     switch (lookup) {
-      case "sku" -> {
+      case "sku":
         return sku;
-      }
-      case "name" -> {
+      case "name":
         return name;
-      }
-      case "disabled_access" -> {
+      case "disabled_access":
         return String.valueOf(disabledAccess);
-      }
-      case "medal_event" -> {
+      case "medal_event":
         return String.valueOf(medalEvent);
-      }
-      case "venue" -> {
+      case "venue":
         return venue;
-      }
-      case "category" -> {
+      case "category":
         return category;
-      }
-      default -> {
+      default:
         return "";
-      }
     }
   }
 }
