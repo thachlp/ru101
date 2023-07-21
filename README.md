@@ -10,3 +10,5 @@ docker run -p 6379:6379 -it --rm redis:latest
 
 ### Takes note
 [RU101 content](./CONTENT.md)
+
+[![codecov](https://codecov.io/github/thachlp/ru101/branch/main/graph/badge.svg?token=JXXG3VG74O)](https://codecov.io/github/thachlp/ru101)
