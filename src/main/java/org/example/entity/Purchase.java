@@ -77,14 +77,14 @@ public class Purchase {
   }
 
   public Map<String, String> toMap() {
-    Map<String, String> values = new HashMap<>();
-    values.put("order_id", this.getOrderId());
-    values.put("customer", this.getCustomer().toString());
-    values.put("tier", String.valueOf(this.getTier()));
-    values.put("qty", String.valueOf(this.getQuantity()));
-    values.put("cost", String.valueOf(this.getCost()));
-    values.put("event_sku", this.getSku());
-    values.put("created_at", String.valueOf(this.getCreatedAt()));
+    final Map<String, String> values = new HashMap<>();
+    values.put("order_id", getOrderId());
+    values.put("customer", getCustomer().toString());
+    values.put("tier", String.valueOf(getTier()));
+    values.put("qty", String.valueOf(getQuantity()));
+    values.put("cost", String.valueOf(getCost()));
+    values.put("event_sku", getSku());
+    values.put("created_at", String.valueOf(getCreatedAt()));
     return values;
   }
 }

@@ -23,7 +23,7 @@ public class Inventory {
    */
   public void createCustomers(Customer[] customers) {
     for (Customer customer : customers) {
-      String customerKey = KeyHelper.createKey("customer", customer.getId());
+      final String customerKey = KeyHelper.createKey("customer", customer.getId());
       jedis.hset(customerKey, customer.toMap());
     }
   }
@@ -33,7 +33,7 @@ public class Inventory {
    * available tickets, price and ticket tier.
    */
   public void createEvent(EventInventory[] events, int available, double price, String tier) {
-    String skuKeys = KeyHelper.createKey("events");
+    final String skuKeys = KeyHelper.createKey("events");
     for (EventInventory eventInventory : events) {
       if (available > 0) {
         eventInventory.setAvailable(available);
@@ -41,7 +41,7 @@ public class Inventory {
       if (price > 0.0) {
         eventInventory.setPrice(price);
       }
-      String eventKey = KeyHelper.createKey("event", eventInventory.getSku());
+      final String eventKey = KeyHelper.createKey("event", eventInventory.getSku());
       jedis.sadd(skuKeys, eventInventory.getSku());
       jedis.hmset(eventKey, eventInventory.toMap(tier));
     }
@@ -52,17 +52,17 @@ public class Inventory {
    */
   public void checkAvailabilityAndPurchase(Customer customer, String sku, int quantity,
       String tier, String orderId) {
-    Pipeline pipeline = jedis.pipelined();
+    final Pipeline pipeline = jedis.pipelined();
     try {
-      String eventKey = KeyHelper.createKey("event", sku);
+      final String eventKey = KeyHelper.createKey("event", sku);
       jedis.watch(eventKey);
-      int available = Integer.parseInt(
+      final int available = Integer.parseInt(
           jedis.hget(eventKey, String.format("available:%s", tier)));
-      double price = Double.parseDouble(
+      final double price = Double.parseDouble(
           jedis.hget(eventKey, String.format("price:%s", tier)));
       if (available > quantity) {
         pipeline.hincrBy(eventKey, String.format("available:%s", tier), -quantity);
-        Purchase purchase = new Purchase();
+        final Purchase purchase = new Purchase();
         purchase.setOrderId(orderId);
         purchase.setCustomer(customer);
         purchase.setTier(tier);
@@ -70,7 +70,7 @@ public class Inventory {
         purchase.setCost(price * quantity);
         purchase.setSku(sku);
         purchase.setCreatedAt(System.currentTimeMillis());
-        String orderKey = KeyHelper.createKey("sales_order", orderId);
+        final String orderKey = KeyHelper.createKey("sales_order", orderId);
         pipeline.hmset(orderKey, purchase.toMap());
         pipeline.sync();
       }
@@ -83,10 +83,7 @@ public class Inventory {
    * Need to call the auth service to check, but here we always return true
    */
   private boolean creditCardAuth(Customer customer, Double orderTotal) {
-    if (!customer.getCustomerName().isEmpty() && orderTotal < 100_000_000.0) {
-      return true;
-    }
-    return false;
+    return !customer.getCustomerName().isEmpty() && orderTotal < 100_000_000.0;
   }
 
   /**
@@ -95,19 +92,19 @@ public class Inventory {
    * then confirm the inventory deduction or back the deduction out.
    */
   public void reserve(Customer customer, String sku, int quantity, String tier, String orderId) {
-    Pipeline pipeline = new Pipeline(jedis);
+    final Pipeline pipeline = new Pipeline(jedis);
     try {
-      String eventKey = KeyHelper.createKey("event", sku);
+      final String eventKey = KeyHelper.createKey("event", sku);
       jedis.watch(eventKey);
-      int available = Integer.parseInt(
+      final int available = Integer.parseInt(
           jedis.hget(eventKey, String.format("available:%s", tier)));
-      double price = Double.parseDouble(
+      final double price = Double.parseDouble(
           jedis.hget(eventKey, String.format("price:%s", tier)));
       if (available > quantity && creditCardAuth(customer, price * quantity)) {
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         pipeline.hincrBy(eventKey, "available:" + tier, -quantity);
         pipeline.hincrBy(eventKey, "held:" + tier, quantity);
-        String holdKey = KeyHelper.createKey("ticket_hold", sku);
+        final String holdKey = KeyHelper.createKey("ticket_hold", sku);
         pipeline.hsetnx(holdKey, "qty:" + orderId, String.valueOf(quantity));
         pipeline.hsetnx(holdKey, "tier:" + orderId, tier);
         pipeline.hsetnx(holdKey, "ts:" + orderId, String.valueOf(currentTime));
@@ -122,14 +119,14 @@ public class Inventory {
    * Remove the ticket reservation
    */
   private void backoutHold(String sku, String orderId) {
-    Pipeline pipeline = jedis.pipelined();
+    final Pipeline pipeline = jedis.pipelined();
     try {
-      String holdKey = KeyHelper.createKey("ticket_hold", sku);
-      String eventKey = KeyHelper.createKey("event", sku);
+      final String holdKey = KeyHelper.createKey("ticket_hold", sku);
+      final String eventKey = KeyHelper.createKey("event", sku);
       jedis.watch(eventKey);
 
-      int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
-      String tier = jedis.hget(holdKey, "tier:" + orderId);
+      final int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
+      final String tier = jedis.hget(holdKey, "tier:" + orderId);
       pipeline.hincrBy(eventKey, "available:" + tier, quantity);
       pipeline.hincrBy(eventKey, "held:" + tier, -quantity);
       pipeline.hdel(holdKey, "qty:" + orderId);
@@ -146,14 +143,14 @@ public class Inventory {
    * backout the reservation and return the inventory back to the pool.
    */
   public void expireReservation(String sku, long cutoffTime) {
-    long cutoffTimeStamp = System.currentTimeMillis() - cutoffTime;
-    String holdKey = KeyHelper.createKey("ticket_hold", sku);
-    ScanParams params = new ScanParams();
+    final long cutoffTimeStamp = System.currentTimeMillis() - cutoffTime;
+    final String holdKey = KeyHelper.createKey("ticket_hold", sku);
+    final ScanParams params = new ScanParams();
     params.match("ts:*");
-    ScanResult<Entry<String, String>> hScan = jedis.hscan(holdKey, "0", params);
+    final ScanResult<Entry<String, String>> hScan = jedis.hscan(holdKey, "0", params);
     for (Entry<String, String> entry : hScan.getResult()) {
       if (Long.parseLong(entry.getValue()) < cutoffTimeStamp) {
-        String orderId = entry.getKey().split(":")[1];
+        final String orderId = entry.getKey().split(":")[1];
         backoutHold(sku, orderId);
       }
     }

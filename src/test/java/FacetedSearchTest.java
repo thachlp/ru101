@@ -1,19 +1,19 @@
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.example.entity.Event;
-import java.io.File;
-import java.io.IOException;
 import org.example.FacetedSearch;
+import org.example.entity.Event;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FacetedSearchTest {
   private static FacetedSearch facetedSearch;
@@ -22,12 +22,12 @@ public class FacetedSearchTest {
   private static Jedis jedis;
   @BeforeAll
   public static void setUp() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper mapper = new ObjectMapper();
 
     events = mapper.readValue(new File("src/test/resources/events.json"), Event[].class);
     jedis = new Jedis(HostPort.getRedisHost(), HostPort.getRedisPort());
 
-    if (HostPort.getRedisPassword().length() > 0) {
+    if (!HostPort.getRedisPassword().isEmpty()) {
       jedis.auth(HostPort.getRedisPassword());
     }
     facetedSearch = new FacetedSearch(jedis, mapper);
@@ -111,7 +111,7 @@ public class FacetedSearchTest {
    * hfs:614c0162a1387c74bb4597c413c3be1d4fe8b6c32434dbe2a779d265715a8b97  320-GHI-921
    */
   @Test
-  void matchByHashedFaceting() throws JsonProcessingException, NoSuchAlgorithmException {
+  void matchByHashedFaceting() throws Exception {
     facetedSearch.createEventsHashedLookups(events);
     Map<String, String> matches = new HashMap<>();
     matches.put("disabled_access", "true");

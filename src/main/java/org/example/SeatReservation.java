@@ -30,9 +30,9 @@ public class SeatReservation {
   public void createEvent(String sku, int blocks, int seatsPerBlock, String tier) {
     String blockName = "A";
     for (int i = 0; i < blocks; i++) {
-      int filledSeatMap = (int)Math.pow(2, Math.min(seatsPerBlock, MAX_SEATS_PER_BLOCK)) - 1;
-      String[] values = new String[] {"SET", "u32", "0", String.valueOf(filledSeatMap)};
-      String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
+      final int filledSeatMap = (int)Math.pow(2, Math.min(seatsPerBlock, MAX_SEATS_PER_BLOCK)) - 1;
+      final String[] values = {"SET", "u32", "0", String.valueOf(filledSeatMap)};
+      final String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
       jedis.bitfield(key, values);
       blockName = TextIncrease.increaseString(blockName);
     }
@@ -42,8 +42,8 @@ public class SeatReservation {
    * For the given Event, Tier and Block, return the seat map
    */
   public Long getEventSeatBlock(String sku, String tier, String blockName) {
-    String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
-    String[] values = new String[]{"GET", "u32", "0"};
+    final String key = KeyHelper.createKey("seatmap", sku, tier, blockName);
+    final String[] values = {"GET", "u32", "0"};
     return jedis.bitfield(key, values).get(0);
   }
 
@@ -51,17 +51,17 @@ public class SeatReservation {
    * Return the available contiguous seats that match the criteria
    */
   public List<String> getAvailable(int seatMap, int seatsRequired) throws JsonProcessingException {
-    List<String> seats = new ArrayList<>();
-    int endSeat = Integer.bitCount(seatMap) + 1;
+    final List<String> seats = new ArrayList<>();
+    final int endSeat = Integer.bitCount(seatMap) + 1;
     if (seatsRequired <= endSeat) {
       int requiredBlock = (int)Math.pow(2, seatsRequired) - 1;
       for (int i = 1; i <= endSeat + 1; i++) {
         if ((seatMap & requiredBlock) == requiredBlock) {
-          Map<String, String> properties = new HashMap<>();
+          final Map<String, String> properties = new HashMap<>();
           properties.put("first_seat", String.valueOf(i));
           properties.put("last_seat", String.valueOf(i + seatsRequired - 1));
           seats.add(objectMapper.writeValueAsString(properties));
-          requiredBlock = requiredBlock << 1;
+          requiredBlock <<= 1;
         }
       }
     }

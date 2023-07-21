@@ -25,7 +25,7 @@ public class FacetedSearch {
 
   public void createEvent(Event[] events) throws JsonProcessingException {
     for (Event event : events) {
-      String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
+      final String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
       jedis.set(eventKey, objectMapper.writeValueAsString(event));
     }
   }
@@ -36,15 +36,15 @@ public class FacetedSearch {
    */
   public List<String> matchByInspection(Map<String, String> searchFactors)
       throws JsonProcessingException {
-    String matchKeys = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, "*");
-    List<String> result = new ArrayList<>();
-    ScanParams params = new ScanParams();
+    final String matchKeys = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, "*");
+    final List<String> result = new ArrayList<>();
+    final ScanParams params = new ScanParams();
     params.match(matchKeys);
     params.count(1000);
 
-    ScanResult<String> keys = jedis.scan("0", params);
+    final ScanResult<String> keys = jedis.scan("0", params);
     for (String key : keys.getResult()) {
-      JsonNode node = objectMapper.readTree(jedis.get(key));
+      final JsonNode node = objectMapper.readTree(jedis.get(key));
       boolean match = true;
       for (var factor : searchFactors.entrySet()) {
         if (!node.get(factor.getKey()).asText().equals(factor.getValue())) {
@@ -64,10 +64,10 @@ public class FacetedSearch {
    */
   public void createEventWithLookups(Event[] events) throws JsonProcessingException {
     for (Event event : events) {
-      String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
+      final String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
       jedis.set(eventKey, objectMapper.writeValueAsString(event));
       for (String lookup : lookups) {
-        String facetedSearchKey = KeyHelper.createKey("fs", lookup, event.lookup(lookup));
+        final String facetedSearchKey = KeyHelper.createKey("fs", lookup, event.lookup(lookup));
         jedis.sadd(facetedSearchKey, event.getSku());
       }
     }
@@ -77,9 +77,9 @@ public class FacetedSearch {
    * Use SINTER to find the matching elements
    */
   public List<String> matchByFaceTing(Map<String, String> searchFactors) {
-    List<String> facets = new ArrayList<>();
+    final List<String> facets = new ArrayList<>();
     for (var factor : searchFactors.entrySet()) {
-      String facetedSearchKey = KeyHelper.createKey("fs", factor.getKey(), factor.getValue());
+      final String facetedSearchKey = KeyHelper.createKey("fs", factor.getKey(), factor.getValue());
       facets.add(facetedSearchKey);
     }
 
@@ -92,14 +92,14 @@ public class FacetedSearch {
   public void createEventsHashedLookups(Event[] events)
       throws JsonProcessingException, NoSuchAlgorithmException {
     for (Event event : events) {
-      String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
+      final String eventKey = KeyHelper.createKey(KeyHelper.PREFIX_EVENT, event.getSku());
       jedis.set(eventKey, objectMapper.writeValueAsString(event));
-      List<String> hfs = new ArrayList<>();
+      final List<String> hfs = new ArrayList<>();
       for (String lookup : lookups) {
         hfs.add(lookup);
         hfs.add(event.lookup(lookup));
-        String hashed = KeyHelper.sha256(hfs.toString());
-        String hfsKey = KeyHelper.createKey("hfs", hashed);
+        final String hashed = KeyHelper.sha256(hfs.toString());
+        final String hfsKey = KeyHelper.createKey("hfs", hashed);
         jedis.sadd(hfsKey, event.getSku());
       }
     }
@@ -111,16 +111,16 @@ public class FacetedSearch {
   public List<String> matchByHashedFaceTing(Map<String, String> searchFactors)
       throws NoSuchAlgorithmException {
     String hsfKey = "";
-    List<String> hfs = new ArrayList<>();
+    final List<String> hfs = new ArrayList<>();
     for (String lookup : lookups) {
         if (searchFactors.containsKey(lookup)) {
           hfs.add(lookup);
           hfs.add(searchFactors.get(lookup));
       }
     }
-    String hashed = KeyHelper.sha256(hfs.toString());
+    final String hashed = KeyHelper.sha256(hfs.toString());
     hsfKey = KeyHelper.createKey("hfs", hashed);
-    ScanResult<String> scanResult = jedis.sscan(hsfKey, "0");
+    final ScanResult<String> scanResult = jedis.sscan(hsfKey, "0");
     return new ArrayList<>(scanResult.getResult());
   }
 }

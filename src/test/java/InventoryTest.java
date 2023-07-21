@@ -1,10 +1,4 @@
-import static org.awaitility.Awaitility.await;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import org.example.Inventory;
 import org.example.entity.Customer;
 import org.example.entity.EventInventory;
@@ -17,6 +11,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
 public class InventoryTest {
   private static Inventory inventory;
   private static EventInventory[] eventInventories;
@@ -27,11 +25,11 @@ public class InventoryTest {
 
   @BeforeAll
   public static void setUp() throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper mapper = new ObjectMapper();
     eventInventories = mapper.readValue(new File("src/test/resources/event_inventories.json"), EventInventory[].class);
     customers = mapper.readValue(new File("src/test/resources/customers.json"), Customer[].class);
     jedis = new Jedis(HostPort.getRedisHost(), HostPort.getRedisPort());
-    if (HostPort.getRedisPassword().length() > 0) {
+    if (!HostPort.getRedisPassword().isEmpty()) {
       jedis.auth(HostPort.getRedisPassword());
     }
     inventory = new Inventory(jedis);
@@ -39,20 +37,20 @@ public class InventoryTest {
 
   @Test
   void checkAvailabilityAndPurchase() {
-    String orderId =  UUID.randomUUID().toString();
+    final String orderId =  UUID.randomUUID().toString();
     inventory.checkAvailabilityAndPurchase(customers[0], "123-ABC-723", 5, "General", orderId);
-    String orderKey = KeyHelper.createKey("sales_order", orderId);
-    String cost = jedis.hget(orderKey, "cost");
+    final String orderKey = KeyHelper.createKey("sales_order", orderId);
+    final String cost = jedis.hget(orderKey, "cost");
     Assertions.assertEquals("125.0", cost);
   }
 
   @Test
   void reserve() {
-    String orderId =  UUID.randomUUID().toString();
-    String sku = "737-DEF-911";
+    final String orderId =  UUID.randomUUID().toString();
+    final String sku = "737-DEF-911";
     inventory.reserve(customers[0], sku, 5, "General", orderId);
-    String holdKey = KeyHelper.createKey("ticket_hold", sku);
-    int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
+    final String holdKey = KeyHelper.createKey("ticket_hold", sku);
+    final int quantity = Integer.parseInt(jedis.hget(holdKey, "qty:" + orderId));
     Assertions.assertEquals(5, quantity);
   }
 
@@ -61,10 +59,10 @@ public class InventoryTest {
     inventory.createEvent(eventInventories, 20000, 25.00, "General");
     inventory.createCustomers(customers);
 
-    String skuKeys = KeyHelper.createKey("events");
-    long numOfElements = jedis.scard(skuKeys);
-    String customerKey = KeyHelper.createKey("customer", "bill");
-    String customerName = jedis.hget(customerKey, "customer_name");
+    final String skuKeys = KeyHelper.createKey("events");
+    final long numOfElements = jedis.scard(skuKeys);
+    final String customerKey = KeyHelper.createKey("customer", "bill");
+    final String customerName = jedis.hget(customerKey, "customer_name");
 
     Assertions.assertEquals(3, numOfElements);
     Assertions.assertEquals("bill smith", customerName);

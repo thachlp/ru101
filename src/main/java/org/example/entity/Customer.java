@@ -18,9 +18,9 @@ public class Customer {
   }
 
   public Map<String, String> toMap() {
-    Map<String, String> values = new HashMap<>();
-    values.put("id", this.getId());
-    values.put("customer_name", this.getCustomerName());
+    final Map<String, String> values = new HashMap<>();
+    values.put("id", id);
+    values.put("customer_name", customerName);
     return values;
   }
 }

@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class KeyHelper {
+public final class KeyHelper {
   private KeyHelper() {
     throw new IllegalStateException("Utility class");
   }
@@ -23,11 +23,12 @@ public class KeyHelper {
   }
 
   private static String bytesToHex(byte[] hash) {
-    StringBuilder hexString = new StringBuilder(2 * hash.length);
+    final StringBuilder hexString = new StringBuilder(2 * hash.length);
     for (byte h : hash) {
-      String hex = Integer.toHexString(0xff & h);
-      if (hex.length() == 1)
+      final String hex = Integer.toHexString(0xff & h);
+      if (hex.length() == 1) {
         hexString.append('0');
+      }
       hexString.append(hex);
     }
     return hexString.toString();

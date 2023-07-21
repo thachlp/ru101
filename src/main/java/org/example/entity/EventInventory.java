@@ -39,16 +39,16 @@ public class EventInventory extends Event {
   }
 
   public Map<String, String> toMap(String tier) {
-    Map<String, String> values = new HashMap<>();
-    values.put("sku", this.getSku());
-    values.put("name", this.getName());
-    values.put("disabled_access", String.valueOf(this.isDisabledAccess()));
-    values.put("medal_event", String.valueOf(this.isMedalEvent()));
-    values.put("venue", this.getVenue());
-    values.put("category", String.valueOf(this.getCategory()));
-    values.put("capacity", String.valueOf(this.getCapacity()));
-    values.put(String.format("available:%s", tier), String.valueOf(this.getAvailable()));
-    values.put(String.format("price:%s", tier), String.valueOf(this.getPrice()));
+    final Map<String, String> values = new HashMap<>();
+    values.put("sku", getSku());
+    values.put("name", getName());
+    values.put("disabled_access", String.valueOf(isDisabledAccess()));
+    values.put("medal_event", String.valueOf(isMedalEvent()));
+    values.put("venue", getVenue());
+    values.put("category", String.valueOf(getCategory()));
+    values.put("capacity", String.valueOf(getCapacity()));
+    values.put(String.format("available:%s", tier), String.valueOf(getAvailable()));
+    values.put(String.format("price:%s", tier), String.valueOf(getPrice()));
     return values;
   }
 }

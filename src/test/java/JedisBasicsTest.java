@@ -29,17 +29,17 @@ class JedisBasicsTest {
 
   @Test
   void hello() {
-    String key = "hello";
-    String result = jedis.set(key, "world");
+    final String key = "hello";
+    final String result = jedis.set(key, "world");
     Assertions.assertEquals("OK", result);
-    String value = jedis.get(key);
+    final String value = jedis.get(key);
     Assertions.assertEquals("world", value);
 
   }
 
   @Test
   void redisString() {
-    String key = "customers:001";
+    final String key = "customers:001";
     jedis.set(key, "1");
     jedis.incr(key);
     Assertions.assertEquals("2", jedis.get(key));
@@ -52,8 +52,8 @@ class JedisBasicsTest {
 
   @Test
   void redisHash() {
-    String key = "products:yoyo:001";
-    Map<String, String> productProperties = new HashMap<>();
+    final String key = "products:yoyo:001";
+    final Map<String, String> productProperties = new HashMap<>();
     productProperties.put("name", "Yoyo");
     productProperties.put("price", "148.000");
     productProperties.put("YY1000", "20");
@@ -72,44 +72,44 @@ class JedisBasicsTest {
     Assertions.assertEquals(productProperties, storedProperties);
 
     jedis.hincrBy(key, "YY1000", -1L);
-    String availableStock = jedis.hget(key, "YY1000");
+    final String availableStock = jedis.hget(key, "YY1000");
     Assertions.assertEquals("19", availableStock);
   }
 
   @Test
   void redisList() {
-    String key = "collections:001";
-    String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean"};
+    final String key = "collections:001";
+    final String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean"};
     jedis.rpush(key, productNames);
-    long total = jedis.llen(key);
+    final long total = jedis.llen(key);
     Assertions.assertEquals(4, total);
-    String firstElement = jedis.lpop(key);
+    final String firstElement = jedis.lpop(key);
     Assertions.assertEquals("Hat", firstElement);
-    String lastElement = jedis.rpop(key);
+    final String lastElement = jedis.rpop(key);
     Assertions.assertEquals("Jean", lastElement);
   }
 
   @Test
   void redisSet() {
-    String key = "collections:001";
-    String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean", "Jean"};
+    final String key = "collections:001";
+    final String[] productNames = {"Hat", "T-Shirt", "Shirt", "Jean", "Jean"};
     jedis.sadd(key, productNames);
-    long count = jedis.scard(key);
+    final long count = jedis.scard(key);
     Assertions.assertEquals(4, count);
-    boolean hat = jedis.sismember(key, "Hat");
+    final boolean hat = jedis.sismember(key, "Hat");
     Assertions.assertTrue(hat);
   }
 
   @Test
   void redisSortedSet() {
-    String key = "leaderboards";
+    final String key = "leaderboards";
     jedis.zadd(key, 3, "Alan");
     jedis.zadd(key, 9, "Den");
     jedis.zadd(key, 4, "Del");
     jedis.zadd(key, 1, "Phuong");
     jedis.zadd(key, 8, "Thanh");
     jedis.zadd(key, 5, "Brand");
-    List<Tuple> tuples = jedis.zrevrangeByScoreWithScores(key, 10, 5);
+    final List<Tuple> tuples = jedis.zrevrangeByScoreWithScores(key, 10, 5);
     Assertions.assertEquals(3, tuples.size());
     Assertions.assertEquals(9, tuples.get(0).getScore());
   }
