@@ -14,3 +14,4 @@ docker run -p 6379:6379 -it --rm redis:latest
 
 [![CI](https://github.com/thachlp/ru101/actions/workflows/action_build.yml/badge.svg?branch=main)](https://github.com/thachlp/ru101/actions/workflows/action_build.yml)
 [![codecov](https://codecov.io/github/thachlp/ru101/branch/main/graph/badge.svg?token=JXXG3VG74O)](https://codecov.io/github/thachlp/ru101)
+[![CodeQL](https://github.com/thachlp/ru101/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/thachlp/ru101/actions/workflows/codeql.yml)
