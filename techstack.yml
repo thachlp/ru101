@@ -1,11 +1,11 @@
 repo_name: thachlp/ru101
-report_id: ba07734f8bf45b32a1cc1cd1f9dbabbc
+report_id: 81a300fb28de7f129d25fdc44711c8a9
 repo_type: Public
-timestamp: '2023-11-10T03:18:52+00:00'
-requested_by: thachlp
+timestamp: '2023-12-14T10:07:13+00:00'
+requested_by: stack-file[bot]
 provider: github
 branch: main
-detected_tools_count: 4
+detected_tools_count: 10
 tools:
 - name: Java
   description: A concurrent, class-based, object-oriented, language specifically designed
@@ -34,7 +34,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/11563/actions.png
-  detection_source: ".github/workflows/codeql.yml"
+  detection_source: ".github/workflows/action_build.yml"
   last_updated_by: Thach Le
   last_updated_on: 2023-07-21 10:22:01.000000000 Z
 - name: Gradle
@@ -46,6 +46,85 @@ tools:
   category: Build, Test, Deploy
   sub_category: Java Build Tools
   image_url: https://img.stackshare.io/service/975/gradlephant-social-black-bg.png
-  detection_source: gradlew.bat
+  detection_source: build.gradle
   last_updated_by: Thach Le
   last_updated_on: 2023-01-03 10:43:48.000000000 Z
+- name: com.fasterxml.jackson.core:jackson-core
+  description: Core Jackson processing abstractions
+  version: 2.14.1
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-07-21 10:16:52.000000000 Z
+- name: com.fasterxml.jackson.core:jackson-databind
+  description: 'General data-binding functionality for Jackson: works on core streaming
+    API'
+  version: 2.14.1
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-07-21 10:16:52.000000000 Z
+- name: org.awaitility:awaitility
+  description: A Java DSL for synchronizing asynchronous operations
+  version: 4.2.0
+  license: Apache-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-01-04 03:55:37.000000000 Z
+- name: org.junit.jupiter:junit-jupiter-api
+  description: Module "junit-jupiter-api" of JUnit 5
+  version: 5.8.1
+  license: EPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-01-04 03:55:37.000000000 Z
+- name: org.junit.jupiter:junit-jupiter-engine
+  description: Module "junit-jupiter-engine" of JUnit 5
+  version: 5.8.1
+  license: EPL-2.0
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-01-04 03:55:37.000000000 Z
+- name: redis.clients:jedis
+  description: Jedis is a blazingly small and sane Redis java client
+  version: 4.4.3
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: Maven Packages
+  image_url: https://img.stackshare.io/package/maven/image.png
+  detection_source_url: https://github.com/thachlp/ru101/blob/main/build.gradle
+  detection_source: build.gradle
+  last_updated_by: Thach Le
+  last_updated_on: 2023-07-21 10:13:48.000000000 Z
